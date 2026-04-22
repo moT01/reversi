@@ -1,3 +1,3 @@
 ## Deployment
 
-Serve the repository root as static files (entry point: `index.html`).
+- Serve the repository root as static files - Entry point: `index.html`
