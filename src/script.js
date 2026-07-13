@@ -472,7 +472,7 @@ function renderHome() {
 
         <div class="mode-tabs">
           <button class="tab-btn ${state.mode === 'hvc' ? 'active' : ''}" data-mode="hvc">vs Computer</button>
-          <button class="tab-btn ${state.mode === 'hvh' ? 'active' : ''}" data-mode="hvh">2 Players</button>
+          <button class="tab-btn ${state.mode === 'hvh' ? 'active' : ''}" data-mode="hvh">2 Player</button>
         </div>
 
         ${isHvc ? `
@@ -507,8 +507,10 @@ function renderPlay() {
   if (!isOver) {
     if (state.aiThinking) {
       turnText = 'Thinking...';
+    } else if (state.mode === 'hvc') {
+      turnText = 'Your turn';
     } else {
-      turnText = state.currentPlayer === 1 ? "Dark's turn" : "Light's turn";
+      turnText = state.currentPlayer === 1 ? "Player 1's turn" : "Player 2's turn";
     }
   }
 
@@ -528,12 +530,12 @@ function renderPlay() {
           <div class="score-bar">
             <div class="score-item">
               <span class="disc-icon dark-disc"></span>
-              <span class="score-label">Dark:</span>
+              <span class="score-label">${state.mode === 'hvc' ? (state.playerColor === 1 ? 'You:' : 'Computer:') : 'Player 1:'}</span>
               <span class="score-num">${state.scores[1]}</span>
             </div>
             <div class="score-item">
               <span class="disc-icon light-disc"></span>
-              <span class="score-label">Light:</span>
+              <span class="score-label">${state.mode === 'hvc' ? (state.playerColor === 2 ? 'You:' : 'Computer:') : 'Player 2:'}</span>
               <span class="score-num">${state.scores[2]}</span>
             </div>
           </div>
@@ -598,17 +600,24 @@ function renderBoard(isHvc, aiColor) {
 }
 
 function renderGameOver() {
-  const isWon = state.status === 'won';
   const isDraw = state.status === 'draw';
   let resultText = '';
-  if (isDraw) resultText = 'Draw!';
-  else resultText = state.winner === 1 ? 'Dark wins!' : 'Light wins!';
+  if (isDraw) {
+    resultText = 'Draw';
+  } else if (state.mode === 'hvc') {
+    resultText = state.winner === state.playerColor ? 'You win!' : 'Computer wins';
+  } else {
+    resultText = state.winner === 1 ? 'Player 1 wins!' : 'Player 2 wins!';
+  }
+
+  const darkLabel = state.mode === 'hvc' ? (state.playerColor === 1 ? 'You' : 'Computer') : 'Player 1';
+  const lightLabel = state.mode === 'hvc' ? (state.playerColor === 2 ? 'You' : 'Computer') : 'Player 2';
 
   return `
     <div class="game-over-overlay">
       <div class="game-over-card">
         <div class="game-over-result ${isDraw ? 'draw' : state.winner === 1 ? 'dark-wins' : 'light-wins'}">${resultText}</div>
-        <div class="game-over-counts">Dark ${state.scores[1]} - Light ${state.scores[2]}</div>
+        <div class="game-over-counts">${darkLabel} ${state.scores[1]} - ${lightLabel} ${state.scores[2]}</div>
         <div class="game-over-actions">
           <button class="primary-btn" id="play-again-btn">Play Again</button>
           <button class="secondary-btn" id="home-btn">Home</button>
@@ -632,7 +641,7 @@ function renderHelpModal() {
 
           <h3>Rules</h3>
           <ul>
-            <li>Dark goes first; players alternate placing one disc per turn.</li>
+            <li>Player 1 goes first; players alternate placing one disc per turn.</li>
             <li>A disc can only be placed where it flips at least one opponent disc.</li>
             <li>All opponent discs sandwiched between your new disc and an existing friendly disc (in any direction) are flipped simultaneously.</li>
             <li>If you have no valid move, your turn is skipped automatically.</li>
